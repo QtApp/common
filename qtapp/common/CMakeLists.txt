@@ -29,7 +29,6 @@ find_program(7Z_EXE "7z")
 if(7Z_EXE-NOTFOUND})
   message(FATAL_ERROR "7Z is needed, add the execuable path to system PATH enviroment variable.")
 endif()
-
 # Dependencies
 ## Qt6
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
@@ -69,6 +68,16 @@ target_link_libraries(${LIB_NAME}
   PRIVATE
     spdlog::spdlog
 )
+
+# Copy 7z.exe to binary directory which will be used to
+# archive log files every month.
+if(WIN32)
+  add_custom_command(TARGET ${LIB_NAME}
+    POST_BUILD
+    COMMAND
+    ${CMAKE_COMMAND} -E copy ${7Z_EXE}
+    $<TARGET_FILE_DIR:${LIB_NAME}>/7z.exe)
+endif(WIN32)
 
 ## Export header
 generate_export_header(${LIB_NAME}
