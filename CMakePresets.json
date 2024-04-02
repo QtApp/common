@@ -1,0 +1,17 @@
+{
+  "version": 8,
+  "configurePresets": [
+    {
+      "name": "win64",
+      "cacheVariables": {
+      },
+      "environment": {
+        "VCPKG_KEEP_ENV_VARS": "Qt6_DIR",
+        "PATH": "$env{Qt6_DIR}\\bin;$penv{PATH}"
+      },
+      "generator": "Visual Studio 17",
+      "architecture": "x64",
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+    }
+  ]
+}
