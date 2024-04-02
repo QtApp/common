@@ -26,7 +26,7 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
 
 # 7z
 find_program(7Z_EXE "7z")
-if(7Z_EXE-NOTFOUND})
+if(7Z_EXE STREQUAL 7Z_EXE-NOTFOUND)
   message(FATAL_ERROR "7Z is needed, add the execuable path to system PATH enviroment variable.")
 endif()
 # Dependencies
@@ -132,4 +132,6 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/qtapp_common_export.h"
 install(FILES "${PROJECT_SOURCE_DIR}/qtapp/common.h"
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/qtapp
 )
+
+install(PROGRAMS "${7Z_EXE}" DESTINATION ${CMAKE_INSTALL_BINDIR})
 
