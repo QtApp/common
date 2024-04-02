@@ -24,6 +24,12 @@ include(GenerateExportHeader)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
 
+# 7z
+find_program(7Z_EXE "7z")
+if(7Z_EXE-NOTFOUND})
+  message(FATAL_ERROR "7Z is needed, add the execuable path to system PATH enviroment variable.")
+endif()
+
 # Dependencies
 ## Qt6
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
@@ -68,16 +74,6 @@ target_link_libraries(${LIB_NAME}
 generate_export_header(${LIB_NAME}
   BASE_NAME qtapp_common)
 
-# Copy 7z.exe to binary directory which will be used to
-# archive log files every month.
-if(WIN32)
-  add_custom_command(TARGET ${LIB_NAME}
-    POST_BUILD
-    COMMAND
-    ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/7z/7z.exe
-    $<TARGET_FILE_DIR:${LIB_NAME}>/7z.exe)
-endif(WIN32)
-
 # Unit tests
 if(BUILD_TESTING)
   find_package(GTest REQUIRED)
@@ -118,10 +114,6 @@ install(EXPORT Common
 configure_file(CommonTargets.cmake.in CommonTargets.cmake @ONLY)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/CommonTargets.cmake"
   DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/qtapp
-)
-
-install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/7z/7z.exe"
-  DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/qtapp_common_export.h"

@@ -34,6 +34,11 @@ TEST(Logging, Message) {
   qWarning() << "warning";
   qDebug() << "debug";
   qCritical() << "critical";
+
+  QDir dir = QCoreApplication::applicationDirPath();
+  EXPECT_TRUE(dir.cd("logs"));
+  QDate day = QDate::currentDate();
+  EXPECT_TRUE(dir.exists(day.toString("yyyy.MM.dd.log")));
 }
 
 void GenerateLogs() {

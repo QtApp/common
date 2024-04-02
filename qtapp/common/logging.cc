@@ -1,8 +1,7 @@
 #include "qtapp/common/logging.h"
 
-#include <vector>
-
 #include <QtCore>
+#include <vector>
 
 #include "spdlog/async.h"
 #include "spdlog/async_logger.h"
@@ -107,7 +106,7 @@ void Initialize() {
   QString log_file = dir.absoluteFilePath(
       QDate::currentDate().toString("yyyy.MM.dd") + ".log");
 
-  auto daily_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(
+  auto daily_sink = std::make_shared<spdlog::sinks::daily_file_format_sink_mt>(
       log_file.toStdString(), 0, 0, false);
 
   QSettings settings;
