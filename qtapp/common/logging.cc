@@ -3,6 +3,7 @@
 #include <QtCore>
 #include <vector>
 
+#include "minizip/zip.h"
 #include "spdlog/async.h"
 #include "spdlog/async_logger.h"
 #include "spdlog/sinks/daily_file_sink.h"
@@ -25,21 +26,40 @@ bool CheckDir() {
   return dir.cd("archived");
 }
 
-bool ArchiveFiles(const QStringList& files, const QString& archive_file_name) {
-  QStringList param;
-  param << "-bsp0" << "-bso0" << "a" << archive_file_name << files;
-
-  if (QProcess::execute("7z", param) < 0) {
-    // compress failed
-    QDir archive_dir = QFileInfo(archive_file_name).absolutePath();
-    for (const QString& file_name : files) {
-      QFileInfo info(file_name);
-      QFile f(file_name);
-      f.copy(archive_dir.absoluteFilePath(info.fileName()));
-    }
+bool ArchiveFiles(const QFileInfoList& files,
+                  const QString& archive_file_name) {
+  zipFile zip_file =
+      zipOpen(archive_file_name.toStdString().c_str(), APPEND_STATUS_CREATE);
+  if (zip_file == NULL) {
     return false;
   }
 
+  for (int i = 0; i < files.size(); ++i) {
+    zip_fileinfo zipinfo;
+    QDateTime create_time = files[i].birthTime();
+    zipinfo.tmz_date.tm_year = create_time.date().year();
+    zipinfo.tmz_date.tm_mon = create_time.date().month();
+    zipinfo.tmz_date.tm_mday = create_time.date().day();
+    zipinfo.tmz_date.tm_hour = create_time.time().hour();
+    zipinfo.tmz_date.tm_min = create_time.time().minute();
+    zipinfo.tmz_date.tm_sec = create_time.time().second();
+    zipinfo.dosDate = 0;
+    zipinfo.external_fa = zipinfo.internal_fa = 0;
+    zipOpenNewFileInZip(zip_file, files[i].fileName().toStdString().c_str(),
+                        &zipinfo, NULL, 0, NULL, 0, NULL, Z_DEFLATED,
+                        Z_DEFAULT_COMPRESSION);
+
+    QFile file(files[i].filePath());
+    if (!file.open(QIODevice::ReadOnly)) {
+      zipCloseFileInZip(zip_file);
+      continue;
+    }
+    QByteArray buffer = file.readAll();
+    zipWriteInFileInZip(zip_file, buffer.data(), buffer.size());
+    zipCloseFileInZip(zip_file);
+  }
+
+  zipClose(zip_file, NULL);
   return true;
 }
 
@@ -57,20 +77,16 @@ void ArchiveLastMonthLogFiles() {
   if (!archive_dir.exists(last_month_name)) {
     QStringList name_filter;
     name_filter << last_month.toString("yyyy.MM.*.log");
-    QStringList log_files = logs_dir.entryList(name_filter, QDir::Files);
-    for (QString& f : log_files) {
-      f = logs_dir.absoluteFilePath(f);
-    }
-
+    QFileInfoList log_files = logs_dir.entryInfoList(name_filter, QDir::Files);
     if (log_files.size() > 0) {
       if (!ArchiveFiles(log_files, archive_dir.absoluteFilePath(
-                                       last_month.toString("yyyy.MM.7z")))) {
+                                       last_month.toString("yyyy.MM.zip")))) {
         qWarning()
-            << "Can not archive last month's logging files by 7z compressor.";
+            << "Can not archive last month's logging files by zip compressor.";
       }
       // remove last month's logs
-      for (const QString& file : log_files) {
-        logs_dir.remove(QFileInfo(file).fileName());
+      for (const QFileInfo& file : log_files) {
+        logs_dir.remove(file.fileName());
       }
     }
   }

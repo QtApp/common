@@ -24,16 +24,13 @@ include(GenerateExportHeader)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
 
-# 7z
-find_program(7Z_EXE "7z")
-if(7Z_EXE STREQUAL 7Z_EXE-NOTFOUND)
-  message(FATAL_ERROR "7Z is needed, add the execuable path to system PATH enviroment variable.")
-endif()
 # Dependencies
 ## Qt6
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 ## spdlog
 find_package(spdlog REQUIRED)
+## minizip
+find_package(unofficial-minizip CONFIG REQUIRED)
 
 # Create the library
 set(LIB_NAME QtApp.Common)
@@ -67,17 +64,8 @@ target_link_libraries(${LIB_NAME}
     Qt6::Widgets
   PRIVATE
     spdlog::spdlog
+    unofficial::minizip::minizip
 )
-
-# Copy 7z.exe to binary directory which will be used to
-# archive log files every month.
-if(WIN32)
-  add_custom_command(TARGET ${LIB_NAME}
-    POST_BUILD
-    COMMAND
-    ${CMAKE_COMMAND} -E copy ${7Z_EXE}
-    $<TARGET_FILE_DIR:${LIB_NAME}>/7z.exe)
-endif(WIN32)
 
 ## Export header
 generate_export_header(${LIB_NAME}
@@ -132,6 +120,3 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/qtapp_common_export.h"
 install(FILES "${PROJECT_SOURCE_DIR}/qtapp/common.h"
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/qtapp
 )
-
-install(PROGRAMS "${7Z_EXE}" DESTINATION ${CMAKE_INSTALL_BINDIR})
-

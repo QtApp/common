@@ -17,7 +17,7 @@ TEST(Logging, Init) {
 
   QDate this_month = QDate::currentDate();
   QDate last_month = this_month.addMonths(-1);
-  QString last_month_name = last_month.toString("yyyy.MM.7z");
+  QString last_month_name = last_month.toString("yyyy.MM.zip");
 
   // achived file created by 7z
   EXPECT_TRUE(dir.exists(last_month_name));
