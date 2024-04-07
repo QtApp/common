@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(QtApp.Common VERSION 1.0.0 LANGUAGES CXX)
+project(QtApp.Common VERSION 0.1.0 LANGUAGES CXX)
 
 option(BUILD_TESTING "Build unit tests" ON)
 if(BUILD_TESTING)

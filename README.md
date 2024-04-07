@@ -10,5 +10,4 @@ Logging is always needed in any kinds of industrial applications. QtAppCommon li
 
 ### Build
 - Set Qt6_DIR and append it to PATH enviroment variable
-- Append 7Z execuable directory to PATH enviroment variable
 
