@@ -44,6 +44,7 @@ target_include_directories(${LIB_NAME}
 
 set(${LIB_NAME}_PUBLIC_HEADER
   logging.h
+  settings.h
 )
 
 target_sources(${LIB_NAME}
@@ -53,6 +54,7 @@ target_sources(${LIB_NAME}
       FILES "${${LIB_NAME}_PUBLIC_HEADER}"
   PRIVATE
     logging.cc
+    settings.cc
 )
 
 set_target_properties(${LIB_NAME} PROPERTIES
@@ -86,6 +88,18 @@ if(BUILD_TESTING)
     set_property(TARGET logging_test PROPERTY FOLDER "Test")
   endif(MSVC)
   add_test(NAME Logging COMMAND logging_test)
+
+  # settings
+  add_executable(settings_test settings_test.cc)
+  target_link_libraries(settings_test 
+    PRIVATE 
+    ${LIB_NAME}
+    Qt6::Widgets
+    GTest::gtest)
+  if(MSVC)
+    set_property(TARGET settings_test PROPERTY FOLDER "Test")
+  endif(MSVC)
+  add_test(NAME Settings COMMAND settings_test)
 endif(BUILD_TESTING)
 
 # Install
